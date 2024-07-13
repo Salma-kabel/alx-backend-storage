@@ -5,17 +5,17 @@
 from pymongo import MongoClient
 
 
-def log_stats():
+def log():
     """provides some stats about Nginx logs stored in MongoDB"""
     client = MongoClient('mongodb://127.0.0.1:27017')
-    logs_collection = client.logs.nginx
-    total = logs_collection.count_documents({})
-    get = logs_collection.count_documents({"method": "GET"})
-    post = logs_collection.count_documents({"method": "POST"})
-    put = logs_collection.count_documents({"method": "PUT"})
-    patch = logs_collection.count_documents({"method": "PATCH"})
-    delete = logs_collection.count_documents({"method": "DELETE"})
-    path = logs_collection.count_documents(
+    collection = client.logs.nginx
+    total = collection.count_documents({})
+    get = collection.count_documents({"method": "GET"})
+    post = collection.count_documents({"method": "POST"})
+    put = collection.count_documents({"method": "PUT"})
+    patch = collection.count_documents({"method": "PATCH"})
+    delete = collection.count_documents({"method": "DELETE"})
+    path = collection.count_documents(
         {"method": "GET", "path": "/status"})
     print(f"{total} logs")
     print("Methods:")
@@ -28,4 +28,4 @@ def log_stats():
 
 
 if __name__ == "__main__":
-    log_stats()
+    log()
