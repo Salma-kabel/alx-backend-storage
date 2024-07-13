@@ -73,3 +73,13 @@ class Cache:
     def get_str(self: bytes) -> str:
         """get a string"""
         return self.decode("utf-8")
+
+    def replay(method: Callable) -> Callable:
+        """display the history of calls of a particular function"""
+        instance = redis.Redis()
+        qn = method.__qualname__
+        inputs = instance.lrange(f"{qn}:inputs", 0, -1)
+        outputs = instance.lrange(f"{qn}:outputs", 0, -1)
+        print("{} was called {} times:".format(qn, len(inputs)))
+        for input, output in zip(inputs, outputs):
+            print(f"{qn}(*{input.decode('UTF-8')}) -> {output}")
