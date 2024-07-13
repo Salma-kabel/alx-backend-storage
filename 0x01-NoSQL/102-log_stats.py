@@ -35,7 +35,7 @@ def log():
     for ip in ips:
         if i == 10:
             break
-        print(f"\t{s.get('_id')}: {s.get('count')}")
+        print(f"\t{ip.get('_id')}: {ip.get('count')}")
         i += 1
 
 
