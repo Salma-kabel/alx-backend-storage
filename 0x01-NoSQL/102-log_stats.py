@@ -31,12 +31,12 @@ def log():
     ips = collection.aggregate(
         [{"$group": {"_id": "$ip", "count": {"$sum": 1}}},
          {"$sort": {"count": -1}}])
-    ip = 0
-    for i in ips:
-        if ip == 10:
+    i = 0
+    for ip in ips:
+        if i == 10:
             break
         print(f"\t{s.get('_id')}: {s.get('count')}")
-        ip += 1
+        i += 1
 
 
 if __name__ == "__main__":
