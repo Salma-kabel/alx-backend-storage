@@ -6,18 +6,18 @@ the most present IPs in the collection"""
 from pymongo import MongoClient
 
 
-def log_stats():
+def log():
     """adding the top 10 of the most present IPs
     in the collection nginx of the database logs"""
     client = MongoClient('mongodb://127.0.0.1:27017')
-    logs_collection = client.logs.nginx
-    total = logs_collection.count_documents({})
-    get = logs_collection.count_documents({"method": "GET"})
-    post = logs_collection.count_documents({"method": "POST"})
-    put = logs_collection.count_documents({"method": "PUT"})
-    patch = logs_collection.count_documents({"method": "PATCH"})
-    delete = logs_collection.count_documents({"method": "DELETE"})
-    path = logs_collection.count_documents(
+    collection = client.logs.nginx
+    total = collection.count_documents({})
+    get = collection.count_documents({"method": "GET"})
+    post = collection.count_documents({"method": "POST"})
+    put = collection.count_documents({"method": "PUT"})
+    patch = collection.count_documents({"method": "PATCH"})
+    delete = collection.count_documents({"method": "DELETE"})
+    path = collection.count_documents(
         {"method": "GET", "path": "/status"})
     print(f"{total} logs")
     print("Methods:")
@@ -28,16 +28,16 @@ def log_stats():
     print(f"\tmethod DELETE: {delete}")
     print(f"{path} status check")
     print("IPs:")
-    sorted_ips = logs_collection.aggregate(
+    ips = collection.aggregate(
         [{"$group": {"_id": "$ip", "count": {"$sum": 1}}},
          {"$sort": {"count": -1}}])
-    i = 0
-    for s in sorted_ips:
-        if i == 10:
+    ip = 0
+    for i in ips:
+        if ip == 10:
             break
         print(f"\t{s.get('_id')}: {s.get('count')}")
-        i += 1
+        ip += 1
 
 
 if __name__ == "__main__":
-    log_stats()
+    log()
