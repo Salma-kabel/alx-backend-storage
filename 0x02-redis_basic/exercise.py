@@ -24,6 +24,7 @@ def count_calls(method: Callable) -> Callable:
 
     return wrapper
 
+
 def call_history(method: Callable) -> Callable:
     """Add input parameters to a list in Redis"""
     randomKey = method.__qualname__
@@ -39,6 +40,7 @@ def call_history(method: Callable) -> Callable:
         return res
 
     return wrapper
+
 
 class Cache:
     """Cache Redis class"""
@@ -62,8 +64,8 @@ class Cache:
         """Convert the data back to the desired format"""
         if func:
             return func(self._redis.get(randomKey))
-        data = self._redis.get(randomKey)
-        return data
+        res = self._redis.get(randomKey)
+        return res
 
     def get_int(self: bytes) -> int:
         """Get a number"""
