@@ -14,7 +14,7 @@ UnionOfTypes = Union[str, bytes, int, float]
 
 def count_calls(method: Callable) -> Callable:
     """count how many times methods of the Cache class are called """
-    randomkey = method.__qualname__
+    randomKey = method.__qualname__
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
