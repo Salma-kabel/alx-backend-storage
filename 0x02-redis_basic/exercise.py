@@ -26,24 +26,22 @@ def count_calls(method: Callable) -> Callable:
 
 def call_history(method: Callable) -> Callable:
     """add input parameters to a list in redis"""
-    key = method.__qualname__
-    i = "".join([key, ":inputs"])
-    o = "".join([key, ":outputs"])
+    randomKey = method.__qualname__
+    inpt = "".join([randomKey, ":inputs"])
+    outpt = "".join([randomKey, ":outputs"])
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         """ Wrapper method """
         self._redis.rpush(i, str(args))
-        res = method(self, *args, **kwargs)
+        result = method(self, *args, **kwargs)
         self._redis.rpush(o, str(res))
-        return res
-
+        return result
     return wrapper
 
 
 class Cache:
     """cache redis class"""
-
     def __init__(self):
         """constructor of the redis model"""
         self._redis = redis.Redis()
@@ -54,17 +52,17 @@ class Cache:
     def store(self, data: UnionOfTypes) -> str:
         """store the input data in Redis using a
         random key and return the key"""
-        key = str(uuid4())
-        self._redis.mset({key: data})
-        return key
+        randomKey = str(uuid4())
+        self._redis.mset({randomKey: data})
+        return randomKey
 
     def get(self, key: str, fn: Optional[Callable] = None) \
             -> UnionOfTypes:
         """convert the data back to the desired format"""
-        if fn:
-            return fn(self._redis.get(key))
-        data = self._redis.get(key)
-        return data
+        if func:
+            return func(self._redis.get(key))
+        result = self._redis.get(key)
+        return result
 
     def get_int(self: bytes) -> int:
         """get a number"""
@@ -77,9 +75,9 @@ class Cache:
     def replay(method: Callable) -> Callable:
         """display the history of calls of a particular function"""
         instance = redis.Redis()
-        qn = method.__qualname__
-        inputs = instance.lrange(f"{qn}:inputs", 0, -1)
-        outputs = instance.lrange(f"{qn}:outputs", 0, -1)
-        print("{} was called {} times:".format(qn, len(inputs)))
-        for input, output in zip(inputs, outputs):
-            print(f"{qn}(*{input.decode('UTF-8')}) -> {output}")
+        qname = method.__qualname__
+        inpt = instance.lrange(f"{qname}:inputs", 0, -1)
+        outpt = instance.lrange(f"{qname}:outputs", 0, -1)
+        print("{} was called {} times:".format(qname, len(inpt)))
+        for input, output in zip(inpt, outpt):
+            print(f"{qname}(*{input.decode('UTF-8')}) -> {output}")

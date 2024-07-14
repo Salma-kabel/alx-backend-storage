@@ -12,11 +12,11 @@ redis = redis.Redis()
 
 
 def wrap_requests(fn: Callable) -> Callable:
-    """ Decorator wrapper """
+    """decorator requests wrapper """
 
     @wraps(fn)
     def wrapper(url):
-        """ uses the requests module to obtain the HTML
+        """uses the requests module to obtain the HTML
         content of a particular URL and returns it"""
         redis.incr(f"count:{url}")
         cached_response = redis.get(f"cached:{url}")
