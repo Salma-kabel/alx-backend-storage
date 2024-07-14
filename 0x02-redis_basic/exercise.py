@@ -61,8 +61,8 @@ class Cache:
         """Convert the data back to the desired format"""
         if func:
             return func(self._redis.get(randomKey))
-        result = self._redis.get(randomKey)
-        return result
+        res = self._redis.get(randomKey)
+        return res
 
     def get_int(self: bytes) -> int:
         """Get a number"""
