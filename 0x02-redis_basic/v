@@ -13,63 +13,63 @@ UnionOfTypes = Union[str, bytes, int, float]
 
 
 def count_calls(method: Callable) -> Callable:
-    """Count how many times methods of the Cache class are called"""
+    """count how many times methods of the Cache class are called """
     randomKey = method.__qualname__
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        """Wrapper method"""
+        """wrapper method"""
         self._redis.incr(randomKey)
         return method(self, *args, **kwargs)
-
     return wrapper
 
+
 def call_history(method: Callable) -> Callable:
-    """Add input parameters to a list in Redis"""
+    """add input parameters to a list in redis"""
     randomKey = method.__qualname__
     inpt = "".join([randomKey, ":inputs"])
     outpt = "".join([randomKey, ":outputs"])
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        """Wrapper method"""
+        """ Wrapper method """
         self._redis.rpush(inpt, str(args))
-        res = method(self, *args, **kwargs)
+        result = method(self, *args, **kwargs)
         self._redis.rpush(outpt, str(res))
-        return res
-
+        return result
     return wrapper
 
-class Cache:
-    """Cache Redis class"""
 
+class Cache:
+    """cache redis class"""
     def __init__(self):
-        """Constructor of the Redis model"""
+        """constructor of the redis model"""
         self._redis = redis.Redis()
         self._redis.flushdb()
 
     @count_calls
     @call_history
     def store(self, data: UnionOfTypes) -> str:
-        """Store the input data in Redis using a
+        """store the input data in Redis using a
         random key and return the key"""
         randomKey = str(uuid4())
         self._redis.mset({randomKey: data})
         return randomKey
 
-    def get(self, randomKey: str, func: Optional[Callable] = None) -> UnionOfTypes:
-        """Convert the data back to the desired format"""
+    def get(self, randomKey: str, func: Optional[Callable] = None) \
+            -> UnionOfTypes:
+        """convert the data back to the desired format"""
         if func:
             return func(self._redis.get(randomKey))
         result = self._redis.get(randomKey)
         return result
 
     def get_int(self: bytes) -> int:
-        """Get a number"""
+        """get a number"""
         return int.from_bytes(self, sys.byteorder)
 
     def get_str(self: bytes) -> str:
-        """Get a string"""
+        """get a string"""
         return self.decode("utf-8")
 
     def replay(method: Callable) -> Callable:
