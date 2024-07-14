@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+"""implement a get_page function"""
+
+
 import requests
+import redis
 from typing import Callable
 from functools import wraps
 
@@ -6,27 +11,27 @@ from functools import wraps
 redis = redis.Redis()
 
 
-import time
+def wrap_requests(func: Callable) -> Callable:
+    """decorator requests wrapper """
+
+    @wraps(func)
+    def wrapper(url):
+        """uses the requests module to obtain the HTML
+        content of a particular URL and returns it"""
+        redis.incr(f"count:{url}")
+        res = redis.get(f"cached:{url}")
+        if res:
+            return res.decode('utf-8')
+        result = func(url)
+        redis.setex(f"cached:{url}", 10, result)
+        return result
+
+    return wrapper
 
 
-def cache_result(duration=10):
-    def decorator(func):
-        cache = {}
-
-        def wrapper(url):
-            if url in cache and time.time() - cache[url]['timestamp'] < duration:
-                return cache[url]['content']
-            else:
-                content = func(url)
-                cache[url] = {'content': content, 'timestamp': time.time()}
-                return content
-
-        return wrapper
-
-    return decorator
-
-@cache_result()
+@wrap_requests
 def get_page(url: str) -> str:
-    response = requests.get(url)
-    return response.text
-
+    """track how many times a particular URL was
+    accessed in the key "count:{url}"""
+    res = requests.get(url)
+    return res.text
