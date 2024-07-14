@@ -56,12 +56,12 @@ class Cache:
         self._redis.mset({randomKey: data})
         return randomKey
 
-    def get(self, key: str, fn: Optional[Callable] = None) \
+    def get(self, randomKey: str, func: Optional[Callable] = None) \
             -> UnionOfTypes:
         """convert the data back to the desired format"""
         if func:
-            return func(self._redis.get(key))
-        result = self._redis.get(key)
+            return func(self._redis.get(randomKey))
+        result = self._redis.get(randomKey)
         return result
 
     def get_int(self: bytes) -> int:
