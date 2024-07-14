@@ -57,12 +57,13 @@ class Cache:
         self._redis.mset({randomKey: data})
         return randomKey
 
-    def get(self, randomKey: str, func: Optional[Callable] = None) -> UnionOfTypes:
+    def get(self, randomKey: str, func: Optional[Callable] = None)\
+            -> UnionOfTypes:
         """Convert the data back to the desired format"""
         if func:
             return func(self._redis.get(randomKey))
-        res = self._redis.get(randomKey)
-        return res
+        data = self._redis.get(randomKey)
+        return data
 
     def get_int(self: bytes) -> int:
         """Get a number"""
